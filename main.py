@@ -21,9 +21,6 @@ FNT28 = pg.font.Font('assets/fonts/Arial.ttf', 28)
 screen.fill(BACKGROUND)
 
 n_lines = pg.Surface((CELL_QTY * CELL_SIZE, CELL_SIZE // 2), pg.SRCALPHA)
-print(n_lines.get_at((0, 0)))
-#  n_lines = n_lines.convert(n_lines)
-print(n_lines.get_at((0, 0)))
 n_rows = pg.Surface((CELL_SIZE // 2, CELL_QTY * CELL_SIZE), pg.SRCALPHA)
 fields = pg.Surface((CELL_QTY * CELL_SIZE, CELL_QTY * CELL_SIZE), pg.SRCALPHA)
 board = pg.Surface((

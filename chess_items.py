@@ -1,5 +1,5 @@
-import pygame as pg
-from game_config import *
+from pieces import *
+import board_data
 pg.init()
 fnt_num = pg.font.Font(FNT_PATH, FNT_SIZE)
 
@@ -8,17 +8,23 @@ class Chessboard:
     def __init__(self, parent_sufface: pg.Surface,
                  cell_qty: int = CELL_QTY, cell_size: int = CELL_SIZE):
         self.__screen = parent_sufface
+        self.__table = board_data.board
         self.__qty = cell_qty
         self.__size = cell_size
+        self.__pieces_type = PIECES_TYPES
         self.__all_cells = pg.sprite.Group()
+        self.__all_pieces = pg.sprite.Group()
         self.__prepare_screen()
         self.__draw_playboard()
+        self.__draw_all_pieces()
         pg.display.update()
+
 
     def __prepare_screen(self):
         back_img = pg.image.load(IMG_PATH + WIN_BG_IMG)
         back_img = pg.transform.scale(back_img, WINDOW_SIZE)
         self.__screen.blit(back_img, (0, 0))
+
 
     def __draw_playboard(self):
         total_width = self.__qty * self.__size
@@ -45,7 +51,6 @@ class Chessboard:
                             (num_fields_depth, 0))
         playboard_view.blit(num_filds[1],
                             (num_fields_depth, num_fields_depth + total_width))
-
         playboard_rect = playboard_view.get_rect()
         playboard_rect.x += (self.__screen.get_width() - playboard_rect.width) // 2
         playboard_rect.y += (self.__screen.get_height() - playboard_rect.height) // 2
@@ -55,6 +60,7 @@ class Chessboard:
             playboard_rect.y + num_fields_depth
         )
         self.__draw_cells_on_playboard(cells_offset)
+
 
     def __create_num_fields(self):
         n_lines = pg.Surface((self.__qty * self.__size, self.__size // 3), pg.SRCALPHA)
@@ -74,17 +80,11 @@ class Chessboard:
             )
         return n_rows, n_lines
 
+
     def __create_all_cells(self):
         group = pg.sprite.Group()
         is_even_qty = (self.__qty % 2 == 0)
         cell_color_index = 1 if is_even_qty else 0
-
-        cell_black = pg.image.load(IMG_PATH + COLORS[0])
-        cell_white = pg.image.load(IMG_PATH + COLORS[1])
-        cell_black = pg.transform.scale(cell_black, (self.__size, self.__size))
-        cell_white = pg.transform.scale(cell_white, (self.__size, self.__size))
-        cells = [cell_black, cell_white]
-
         for y in range(self.__qty):
             for x in range(self.__qty):
                 cell = Cell(
@@ -98,11 +98,40 @@ class Chessboard:
             cell_color_index = cell_color_index ^ True if is_even_qty else cell_color_index
         return group
 
+
     def __draw_cells_on_playboard(self, offset):
         for cell in self.__all_cells:
             cell.rect.x += offset[0]
             cell.rect.y += offset[1]
         self.__all_cells.draw(self.__screen)
+
+    def __draw_all_pieces(self):
+        self.__setup_board()
+        self.__all_pieces.draw(self.__screen)
+
+
+    def __setup_board(self):
+        for j, row in enumerate(self.__table):
+            for i, field_value in enumerate(row):
+                if field_value != 0:
+                    piece = self.__create_piece(field_value, (j, i))
+                    self.__all_pieces.add(piece)
+        for piece in self.__all_pieces:
+            for cell in self.__all_cells:
+                if piece.field_name == cell.field_name:
+                    piece.rect = cell.rect
+
+
+    def __create_piece(self, piece_symbol: str, table_coord: tuple):
+        field_name = self.__to_field_name(table_coord)
+        piece_tuple = self.__pieces_type[piece_symbol]
+        classname = globals()[piece_tuple[0]]
+        return classname(self.__size, piece_tuple[1], field_name)
+
+
+    def __to_field_name(self, table_coord: tuple):
+        return LTRS[table_coord[1]] + str(self.__qty - table_coord[0])
+
 
 
 class Cell(pg.sprite.Sprite):

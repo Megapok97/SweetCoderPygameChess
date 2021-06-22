@@ -15,3 +15,12 @@ FNT_SIZE = 18
 IMG_PATH = "assets/images/"
 WIN_BG_IMG = "backwindow.jpg"
 BOARD_BG_IMG = "backboard.jpg"
+PIECES_TYPES = {
+    'k': ('King', 'b'), 'K': ('King', 'w'),
+    'q': ('Queen', 'b'), 'Q': ('Queen', 'w'),
+    'r': ('Rook', 'b'), 'R': ('Rook', 'w'),
+    'b': ('Bishop', 'b'), 'B': ('Bishop', 'w'),
+    'n': ('Knight', 'b'), 'N': ('Knight', 'w'),
+    'p': ('Pawn', 'b'), 'P': ('Pawn', 'w'),
+}
+PIECES_PATH = "assets/images/pieces/"

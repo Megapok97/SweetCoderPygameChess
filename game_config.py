@@ -23,4 +23,4 @@ PIECES_TYPES = {
     'n': ('Knight', 'b'), 'N': ('Knight', 'w'),
     'p': ('Pawn', 'b'), 'P': ('Pawn', 'w'),
 }
-PIECES_PATH = "assets/images/pieces/"
+PIECES_PATH = "assets/images/fantasy/"

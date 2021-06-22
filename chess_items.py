@@ -14,6 +14,8 @@ class Chessboard:
         self.__pieces_type = PIECES_TYPES
         self.__all_cells = pg.sprite.Group()
         self.__all_pieces = pg.sprite.Group()
+        self.__all_areas = pg.sprite.Group()
+        self.__pressed_cell = None
         self.__prepare_screen()
         self.__draw_playboard()
         self.__draw_all_pieces()
@@ -133,6 +135,38 @@ class Chessboard:
         return LTRS[table_coord[1]] + str(self.__qty - table_coord[0])
 
 
+    def __get_cell(self, position: tuple):
+        for cell in self.__all_cells:
+            if cell.rect.collidepoint(position):
+                return cell
+        return None
+
+
+    def btn_down(self, button_type: int, position: tuple):
+        self.__pressed_cell = self.__get_cell(position)
+
+
+    def btn_up(self, button_type: int, position: tuple):
+        released_cell = self.__get_cell(position)
+        if (released_cell is not None) and (released_cell == self.__pressed_cell):
+            if button_type == 3:
+                self.__mark_cell(released_cell)
+            if button_type == 1:
+                pass
+        self.__grand_update()
+
+
+    def __mark_cell(self, cell):
+        mark = Area(cell)
+        self.__all_areas.add(mark)
+
+
+    def __grand_update(self):
+        self.__all_cells.draw(self.__screen)
+        self.__all_areas.draw(self.__screen)
+        self.__all_pieces.draw(self.__screen)
+        pg.display.update()
+
 
 class Cell(pg.sprite.Sprite):
     def __init__(self, color_index: int, size: int, coords: tuple, name: str):
@@ -143,3 +177,13 @@ class Cell(pg.sprite.Sprite):
         self.image = pg.image.load(IMG_PATH + COLORS[color_index])
         self.image = pg.transform.scale(self.image, (size, size))
         self.rect = pg.Rect(x * size, y * size, size, size)
+
+class Area(pg.sprite.Sprite):
+    def __init__(self, cell: Cell):
+        super().__init__()
+        coords = (cell.rect.x, cell.rect.y)
+        area_size = (cell.rect.width, cell.rect.height)
+        picture = pg.image.load(IMG_PATH + 'mark.png').convert_alpha()
+        self.image = pg.transform.scale(picture, area_size)
+        self.rect = pg.Rect(coords, area_size)
+        self.field_name = cell.field_name

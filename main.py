@@ -13,5 +13,9 @@ while run:
     clock.tick(FPS)
     for event in pg.event.get():
         if event.type == pg.QUIT:
+            pg.quit()
             run = False
-pg.quit()
+        if event.type == pg.MOUSEBUTTONDOWN:
+            chessboard.btn_down(event.button, event.pos)
+        if event.type == pg.MOUSEBUTTONUP:
+            chessboard.btn_up(event.button, event.pos)

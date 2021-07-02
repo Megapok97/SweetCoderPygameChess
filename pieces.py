@@ -11,6 +11,12 @@ class Pieces(pg.sprite.Sprite):
         self.field_name = field_name
 
 
+
+    def move_to_cell(self, cell):
+        self.rect = cell.rect.copy()
+        self.field_name = cell.field_name
+
+
 class King(Pieces):
     def __init__(self, cell_size: int, color: str, field: str):
         super().__init__(cell_size, color, field, '_king.png')

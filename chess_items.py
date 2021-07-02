@@ -16,6 +16,8 @@ class Chessboard:
         self.__all_pieces = pg.sprite.Group()
         self.__all_areas = pg.sprite.Group()
         self.__pressed_cell = None
+        self.__picked_piece = None
+        self.__dragged_piece = None
         self.__prepare_screen()
         self.__draw_playboard()
         self.__draw_all_pieces()
@@ -39,10 +41,12 @@ class Chessboard:
         ), pg.SRCALPHA)
 
         back_img = pg.image.load(IMG_PATH + BOARD_BG_IMG)
-        back_img = pg.transform.scale(back_img, (
+        back_img = pg.transform.scale(back_img,
+                                      (
             playboard_view.get_width(),
             playboard_view.get_height()
-        ))
+        )
+                                      )
         playboard_view.blit(back_img, (back_img.get_rect()))
 
         playboard_view.blit(num_filds[0],
@@ -59,9 +63,8 @@ class Chessboard:
         self.__screen.blit(playboard_view, playboard_rect)
         cells_offset = (
             playboard_rect.x + num_fields_depth,
-            playboard_rect.y + num_fields_depth
-        )
-        self.__draw_cells_on_playboard(cells_offset)
+            playboard_rect.y + num_fields_depth )
+        self.__apply_offset_for_cells(cells_offset)
 
 
     def __create_num_fields(self):
@@ -101,15 +104,10 @@ class Chessboard:
         return group
 
 
-    def __draw_cells_on_playboard(self, offset):
+    def __apply_offset_for_cells(self, offset):
         for cell in self.__all_cells:
             cell.rect.x += offset[0]
             cell.rect.y += offset[1]
-        self.__all_cells.draw(self.__screen)
-
-    def __draw_all_pieces(self):
-        self.__setup_board()
-        self.__all_pieces.draw(self.__screen)
 
 
     def __setup_board(self):
@@ -121,7 +119,7 @@ class Chessboard:
         for piece in self.__all_pieces:
             for cell in self.__all_cells:
                 if piece.field_name == cell.field_name:
-                    piece.rect = cell.rect
+                    piece.rect = cell.rect.copy()
 
 
     def __create_piece(self, piece_symbol: str, table_coord: tuple):
@@ -142,8 +140,25 @@ class Chessboard:
         return None
 
 
+    def __get_piece_on_cell(self, cell):
+        for piece in self.__all_pieces:
+            if piece.field_name == cell.field_name:
+                return piece
+        return None
+
+
+    def drag(self, position: tuple):
+        if self.__dragged_piece is not None:
+            self.__dragged_piece.rect.center = position
+            self.__grand_update()
+
+
     def btn_down(self, button_type: int, position: tuple):
         self.__pressed_cell = self.__get_cell(position)
+        self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
+        if self.__dragged_piece is not None:
+            self.__dragged_piece.rect.center = position
+            self.__grand_update()
 
 
     def btn_up(self, button_type: int, position: tuple):
@@ -152,13 +167,51 @@ class Chessboard:
             if button_type == 3:
                 self.__mark_cell(released_cell)
             if button_type == 1:
-                pass
+                self.__pick_cell(released_cell)
+        if self.__dragged_piece is not None:
+            self.__dragged_piece.move_to_cell(released_cell)
+            self.__dragged_piece = None
         self.__grand_update()
 
 
+
+    def key_down(self, event):
+        pass
+
+
+    def key_up(self, event):
+        pass
+
+
     def __mark_cell(self, cell):
-        mark = Area(cell)
-        self.__all_areas.add(mark)
+        if not cell.mark:
+            mark = Area(cell)
+            self.__all_areas.add(mark)
+        else:
+            for area in self.__all_areas:
+                if area.field_name == cell.field_name:
+                    area.kill()
+                    break
+        cell.mark ^= True
+
+
+    def __pick_cell(self, cell):
+        self.__unmark_all_cells()
+        if self.__picked_piece is None:
+            piece = self.__get_piece_on_cell(cell)
+            if piece is not None:
+                pick = Area(cell, False)
+                self.__all_areas.add(pick)
+                self.__picked_piece = piece
+        else:
+            self.__picked_piece.move_to_cell(cell)
+            self.__picked_piece = None
+
+
+    def __unmark_all_cells(self):
+        self.__all_areas.empty()
+        for cell in self.__all_cells:
+            cell.mark = False
 
 
     def __grand_update(self):
@@ -177,13 +230,18 @@ class Cell(pg.sprite.Sprite):
         self.image = pg.image.load(IMG_PATH + COLORS[color_index])
         self.image = pg.transform.scale(self.image, (size, size))
         self.rect = pg.Rect(x * size, y * size, size, size)
+        self.mark = False
 
 class Area(pg.sprite.Sprite):
-    def __init__(self, cell: Cell):
+    def __init__(self, cell: Cell, type_of_area: bool = True):
         super().__init__()
         coords = (cell.rect.x, cell.rect.y)
         area_size = (cell.rect.width, cell.rect.height)
-        picture = pg.image.load(IMG_PATH + 'mark.png').convert_alpha()
-        self.image = pg.transform.scale(picture, area_size)
+        if type_of_area:
+            picture = pg.image.load(IMG_PATH + 'mark.png').convert_alpha()
+            self.image = pg.transform.scale(picture, area_size)
+        else:
+            self.image = pg.Surface(area_size).convert_alpha()
+            self.image.fill(ACTIVE_CELL_COLOR)
         self.rect = pg.Rect(coords, area_size)
         self.field_name = cell.field_name

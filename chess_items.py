@@ -27,12 +27,10 @@ class Chessboard:
         self.__setup_board()
         self.__grand_update()
 
-
     def __prepare_screen(self):
         back_img = pg.image.load(IMG_PATH + WIN_BG_IMG)
         back_img = pg.transform.scale(back_img, WINDOW_SIZE)
         self.__screen.blit(back_img, (0, 0))
-
 
     def __draw_playboard(self):
         total_width = self.__qty * self.__size
@@ -46,11 +44,9 @@ class Chessboard:
 
         back_img = pg.image.load(IMG_PATH + BOARD_BG_IMG)
         back_img = pg.transform.scale(back_img,
-                                      (
-            playboard_view.get_width(),
+            (playboard_view.get_width(),
             playboard_view.get_height()
-        )
-                                      )
+        ))
         playboard_view.blit(back_img, (back_img.get_rect()))
         playboard_view.blit(num_filds[0],
                             (0, num_fields_depth))
@@ -69,7 +65,6 @@ class Chessboard:
             playboard_rect.y + num_fields_depth)
         self.__apply_offset_for_cells(cells_offset)
         self.__draw_input_box(playboard_rect)
-
 
     def __draw_input_box(self, board_rect: pg.Rect):
         self.__inputbox = Inputbox(board_rect)
@@ -93,7 +88,6 @@ class Chessboard:
             )
         return n_rows, n_lines
 
-
     def __create_all_cells(self):
         group = pg.sprite.Group()
         is_even_qty = (self.__qty % 2 == 0)
@@ -111,12 +105,10 @@ class Chessboard:
             cell_color_index = cell_color_index ^ True if is_even_qty else cell_color_index
         return group
 
-
     def __apply_offset_for_cells(self, offset):
         for cell in self.__all_cells:
             cell.rect.x += offset[0]
             cell.rect.y += offset[1]
-
 
     def __setup_board(self):
         for j, row in enumerate(self.__table):
@@ -129,17 +121,14 @@ class Chessboard:
                 if piece.field_name == cell.field_name:
                     piece.rect = cell.rect.copy()
 
-
     def __create_piece(self, piece_symbol: str, table_coord: tuple):
         field_name = self.__to_field_name(table_coord)
         piece_tuple = self.__pieces_type[piece_symbol]
         classname = globals()[piece_tuple[0]]
         return classname(self.__size, piece_tuple[1], field_name)
 
-
     def __to_field_name(self, table_coord: tuple):
         return LTRS[table_coord[1]] + str(self.__qty - table_coord[0])
-
 
     def __get_cell(self, position: tuple):
         for cell in self.__all_cells:
@@ -147,19 +136,16 @@ class Chessboard:
                 return cell
         return None
 
-
     def __get_piece_on_cell(self, cell):
         for piece in self.__all_pieces:
             if piece.field_name == cell.field_name:
                 return piece
         return None
 
-
     def drag(self, position: tuple):
         if self.__dragged_piece is not None:
             self.__dragged_piece.rect.center = position
             self.__grand_update()
-
 
     def btn_down(self, button_type: int, position: tuple):
         self.__pressed_cell = self.__get_cell(position)
@@ -174,7 +160,6 @@ class Chessboard:
             self.__inputbox.activate()
 
 
-
     def btn_up(self, button_type: int, position: tuple):
         released_cell = self.__get_cell(position)
         if (released_cell is not None) and (released_cell == self.__pressed_cell):
@@ -187,17 +172,12 @@ class Chessboard:
             self.__dragged_piece = None
         self.__grand_update()
 
-
-
     def __check_paste(self):
         if self.__hotkey[pg.K_LCTRL] and self.__hotkey[pg.K_v]:
             self.__inputbox.put_char(clip.paste())
             return True
         else:
             return False
-
-
-
 
     def key_down(self, event):
         if self.__inputbox.active and event.key in self.__func_keys:
@@ -216,13 +196,11 @@ class Chessboard:
             self.__inputbox.put_char(event.unicode)
         self.__grand_update()
 
-
     def key_up(self, event):
         if event.key == pg.K_LCTRL:
             self.__hotkey[pg.K_LCTRL] = False
         if event.key == pg.K_v:
             self.__hotkey[pg.K_v] = False
-
 
     def __update_board_with_fen(self):
         empty_cells = 0
@@ -245,8 +223,6 @@ class Chessboard:
         self.__setup_board()
         self.__grand_update()
 
-
-
     def __mark_cell(self, cell):
         if not cell.mark:
             mark = Area(cell)
@@ -257,7 +233,6 @@ class Chessboard:
                     area.kill()
                     break
         cell.mark ^= True
-
 
     def __pick_cell(self, cell):
         self.__unmark_all_cells()
@@ -271,12 +246,10 @@ class Chessboard:
             self.__picked_piece.move_to_cell(cell)
             self.__picked_piece = None
 
-
     def __unmark_all_cells(self):
         self.__all_areas.empty()
         for cell in self.__all_cells:
             cell.mark = False
-
 
     def __grand_update(self):
         self.__all_cells.draw(self.__screen)
@@ -298,33 +271,27 @@ class Inputbox(pg.sprite.Sprite):
         pg.draw.rect(self.image, WHITE, (0, 0, width, INPUT_SIZE), 2)
         self.rect = pg.Rect(x, 2 * y + height, width, INPUT_SIZE)
 
-
     def activate(self):
         self.active = True
         pg.draw.rect(self.image, INPUT_FONT_COLOR, (0, 0, self.rect.width, self.rect.height), 2)
 
-
     def deactivate(self):
         self.active = False
         pg.draw.rect(self.image, WHITE, (0, 0, self.rect.width, self.rect.height), 2)
-        
 
     def put_char(self, char: str):
         self.text += char
         self.__update_text()
 
-
     def pop_char(self):
         self.text = self.text[:-1]
         self.__update_text()
-
 
     def __update_text(self):
         self.image.fill(BLACK)
         pg.draw.rect(self.image, INPUT_FONT_COLOR, (0, 0, self.rect.width, self.rect.height), 2)
         fen_text = fnt_num.render(self.text, 1, INPUT_FONT_COLOR)
         self.image.blit(fen_text, (9, 9))
-
 
 
 class Cell(pg.sprite.Sprite):
@@ -337,6 +304,7 @@ class Cell(pg.sprite.Sprite):
         self.image = pg.transform.scale(self.image, (size, size))
         self.rect = pg.Rect(x * size, y * size, size, size)
         self.mark = False
+
 
 class Area(pg.sprite.Sprite):
     def __init__(self, cell: Cell, type_of_area: bool = True):

@@ -152,12 +152,14 @@ class Chessboard:
 
     def btn_down(self, button_type: int, position: tuple):
         self.__pressed_cell = self.__get_cell(position)
+        print(button_type)
         if self.__pressed_cell is not None and self.__pressed_cell.field_name != 'inputbox':
             self.__inputbox.deactivate()
-            self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
-            if self.__dragged_piece is not None:
-                self.__dragged_piece.rect.center = position
-                self.__grand_update()
+            if button_type == 1:
+                self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
+                if self.__dragged_piece is not None:
+                    self.__dragged_piece.rect.center = position
+                    self.__grand_update()
         else:
             self.__pressed_cell = None
             self.__inputbox.activate()

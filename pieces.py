@@ -1,6 +1,7 @@
 import pygame as pg
 from game_config import *
 
+
 class Pieces(pg.sprite.Sprite):
     def __init__(self, cell_size: int, color: str, field_name: str, file_posfix: str):
         super().__init__()
@@ -10,11 +11,10 @@ class Pieces(pg.sprite.Sprite):
         self._color = color
         self.field_name = field_name
 
-
-
     def move_to_cell(self, cell):
-        self.rect = cell.rect.copy()
-        self.field_name = cell.field_name
+        if cell is not None:
+            self.rect = cell.rect.copy()
+            self.field_name = cell.field_name
 
 
 class King(Pieces):

@@ -8,6 +8,7 @@ fnt_num = pg.font.Font(FNT_PATH, FNT_SIZE)
 class Chessboard:
     def __init__(self, parent_sufface: pg.Surface,
                  cell_qty: int = CELL_QTY, cell_size: int = CELL_SIZE):
+        self.field_name = 'Test'
         self.__screen = parent_sufface
         self.__table = board_data.board
         self.__qty = cell_qty
@@ -48,14 +49,10 @@ class Chessboard:
             playboard_view.get_height()
         ))
         playboard_view.blit(back_img, (back_img.get_rect()))
-        playboard_view.blit(num_filds[0],
-                            (0, num_fields_depth))
-        playboard_view.blit(num_filds[0],
-                            (num_fields_depth + total_width, num_fields_depth))
-        playboard_view.blit(num_filds[1],
-                            (num_fields_depth, 0))
-        playboard_view.blit(num_filds[1],
-                            (num_fields_depth, num_fields_depth + total_width))
+        playboard_view.blit(num_filds[0], (0, num_fields_depth))
+        playboard_view.blit(num_filds[0], (num_fields_depth + total_width, num_fields_depth))
+        playboard_view.blit(num_filds[1], (num_fields_depth, 0))
+        playboard_view.blit(num_filds[1], (num_fields_depth, num_fields_depth + total_width))
         playboard_rect = playboard_view.get_rect()
         playboard_rect.x += (self.__screen.get_width() - playboard_rect.width) // 2
         playboard_rect.y += (self.__screen.get_height() - playboard_rect.height) // 4
@@ -92,9 +89,15 @@ class Chessboard:
         group = pg.sprite.Group()
         is_even_qty = (self.__qty % 2 == 0)
         cell_color_index = 1 if is_even_qty else 0
+        black_img = pg.image.load(IMG_PATH + COLORS[0])
+        white_img = pg.image.load(IMG_PATH + COLORS[1])
+        black_img = pg.transform.scale(black_img, (self.__size, self.__size))
+        white_img = pg.transform.scale(white_img, (self.__size, self.__size))
+        img = [black_img, white_img]
         for y in range(self.__qty):
             for x in range(self.__qty):
                 cell = Cell(
+                    img[cell_color_index],
                     cell_color_index,
                     self.__size,
                     (x, y),
@@ -149,7 +152,7 @@ class Chessboard:
 
     def btn_down(self, button_type: int, position: tuple):
         self.__pressed_cell = self.__get_cell(position)
-        if self.__pressed_cell.field_name != 'inputbox':
+        if self.__pressed_cell is not None and self.__pressed_cell.field_name != 'inputbox':
             self.__inputbox.deactivate()
             self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
             if self.__dragged_piece is not None:
@@ -159,7 +162,6 @@ class Chessboard:
             self.__pressed_cell = None
             self.__inputbox.activate()
 
-
     def btn_up(self, button_type: int, position: tuple):
         released_cell = self.__get_cell(position)
         if (released_cell is not None) and (released_cell == self.__pressed_cell):
@@ -168,8 +170,12 @@ class Chessboard:
             if button_type == 1:
                 self.__pick_cell(released_cell)
         if self.__dragged_piece is not None:
-            self.__dragged_piece.move_to_cell(released_cell)
-            self.__dragged_piece = None
+            if released_cell is not None and released_cell.field_name in CELL_NAME:
+                self.__dragged_piece.move_to_cell(released_cell)
+                self.__dragged_piece = None
+            else:
+                self.__dragged_piece.move_to_cell(self.__pressed_cell)
+                self.__dragged_piece = None
         self.__grand_update()
 
     def __check_paste(self):
@@ -295,14 +301,13 @@ class Inputbox(pg.sprite.Sprite):
 
 
 class Cell(pg.sprite.Sprite):
-    def __init__(self, color_index: int, size: int, coords: tuple, name: str):
+    def __init__(self, img: pg.image, color_index: int, size: int, coords: tuple, name: str):
         super().__init__()
-        x, y = coords
+        self.x, self.y = coords
         self.color = color_index
         self.field_name = name
-        self.image = pg.image.load(IMG_PATH + COLORS[color_index])
-        self.image = pg.transform.scale(self.image, (size, size))
-        self.rect = pg.Rect(x * size, y * size, size, size)
+        self.image = img
+        self.rect = pg.Rect(self.x * size, self.y * size, size, size)
         self.mark = False
 
 

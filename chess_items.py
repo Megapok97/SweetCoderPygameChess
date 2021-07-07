@@ -18,6 +18,7 @@ class Chessboard:
         self.__all_cells = pg.sprite.Group()
         self.__all_pieces = pg.sprite.Group()
         self.__all_areas = pg.sprite.Group()
+        self.__block = pg.sprite.Group()
         self.__inputbox = None
         self.__pressed_cell = None
         self.__picked_piece = None
@@ -84,6 +85,10 @@ class Chessboard:
                 i * self.__size + (self.__size - number.get_rect().height) // 2  # Y
             )
                         )
+        n_rows1 = Block(n_rows)
+        self.__block.add(n_rows1)
+        for i in self.__all_cells:
+            print(i.image)
         return n_rows, n_lines
 
     def __create_all_cells(self):
@@ -153,7 +158,6 @@ class Chessboard:
 
     def btn_down(self, button_type: int, position: tuple):
         self.__pressed_cell = self.__get_cell(position)
-        print(button_type)
         if self.__pressed_cell is not None and self.__pressed_cell.field_name != 'inputbox':
             self.__inputbox.deactivate()
             if button_type == 1:
@@ -167,6 +171,7 @@ class Chessboard:
 
     def btn_up(self, button_type: int, position: tuple):
         released_cell = self.__get_cell(position)
+
         if (released_cell is not None) and (released_cell == self.__pressed_cell):
             if button_type == 3:
                 self.__mark_cell(released_cell)
@@ -327,3 +332,10 @@ class Area(pg.sprite.Sprite):
             self.image.fill(ACTIVE_CELL_COLOR)
         self.rect = pg.Rect(coords, area_size)
         self.field_name = cell.field_name
+
+
+class Block(pg.sprite.Sprite):
+    def __init__(self, sf: pg.Surface):
+        pg.sprite.Sprite.__init__(self)
+        self.image = [sf.get_width(), sf.get_height()]
+        self.rect = sf.get_rect()

@@ -1,15 +1,17 @@
-import pygame, sys
-
-mainCloack = pygame.time.Clock()
+import pygame
+import sys
 from pygame.locals import *
+
+main_cloak = pygame.time.Clock()
 pygame.init()
 pygame.display.set_caption('Menu')
+monitor_size = [pygame.display.Info().current_w, pygame.display.Info().current_h]
+game_size = [500, 500]
 screen = pygame.display.set_mode((500, 500), pygame.RESIZABLE)
 fs = False
 run = True
 while run:
     screen.fill((0, 0, 50))
-
     pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(screen.get_width()-50-(screen.get_width()/5), 50, screen.get_width()/5, 50))
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -26,10 +28,9 @@ while run:
                 sys.exit()
             if event.key == K_f:
                 fs = not fs
-                print(fs)
                 if fs:
-                    screen = pygame.display.set_mode((screen.get_width(), screen.get_height()), pygame.FULLSCREEN)
+                    screen = pygame.display.set_mode(monitor_size, pygame.FULLSCREEN)
                 else:
-                    screen = pygame.display.set_mode((screen.get_width(), screen.get_height()), pygame.RESIZABLE)
+                    screen = pygame.display.set_mode(game_size, pygame.RESIZABLE, pygame.NOFRAME)
     pygame.display.update()
-    mainCloack.tick(60)
+    main_cloak.tick(30)

@@ -9,7 +9,6 @@ chessboard = Chessboard(screen)
 run = True
 while run:
     clock.tick(FPS)
-    pg.display.update()
     for event in pg.event.get():
         if event.type == pg.QUIT:
             pg.quit()
@@ -24,4 +23,3 @@ while run:
             chessboard.key_down(event)
         if event.type == pg.KEYUP:
             chessboard.key_up(event)
-

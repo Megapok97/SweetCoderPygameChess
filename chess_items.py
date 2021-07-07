@@ -1,6 +1,7 @@
 from pieces import *
 import board_data
 import pyperclip as clip
+
 pg.init()
 fnt_num = pg.font.Font(FNT_PATH, FNT_SIZE)
 
@@ -45,9 +46,9 @@ class Chessboard:
 
         back_img = pg.image.load(IMG_PATH + BOARD_BG_IMG)
         back_img = pg.transform.scale(back_img,
-            (playboard_view.get_width(),
-            playboard_view.get_height()
-        ))
+                                      (playboard_view.get_width(),
+                                       playboard_view.get_height()
+                                       ))
         playboard_view.blit(back_img, (back_img.get_rect()))
         playboard_view.blit(num_filds[0], (0, num_fields_depth))
         playboard_view.blit(num_filds[0], (num_fields_depth + total_width, num_fields_depth))
@@ -76,13 +77,13 @@ class Chessboard:
             n_lines.blit(letter, (
                 i * self.__size + (self.__size - letter.get_rect().width) // 2,  # X
                 (n_lines.get_height() - letter.get_rect().height) // 2  # Y
-                )
             )
+                         )
             n_rows.blit(number, (
                 (n_rows.get_width() - letter.get_rect().width) // 2,  # X
                 i * self.__size + (self.__size - number.get_rect().height) // 2  # Y
-                )
             )
+                        )
         return n_rows, n_lines
 
     def __create_all_cells(self):
